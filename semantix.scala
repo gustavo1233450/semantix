@@ -17,17 +17,17 @@ object Teste {
   case class AllLines(host:String,returnBytes:String)
   
   def er404(line: String): Err404={
-    //Captura a requisição entre aspas
+    //Retorna a Requisição entre aspas
     val request = line.split("] ")(1).split(" 404")(0)
     
-    //Captura o código do erro 404
+    //Retorna o código do erro 404
     val errCod = line.split(" -").last.split(" ").last
     
-    //Captura o dia da requisição
+    //retorna o dia da requisição
     val timezone = line.split(" ")(3).slice(1,line.split(" ")(3).length())
     val day = timezone.split(":")(0)
     
-    //retorna dataframe dia,requisição entre aspas e código do erro
+    //retorna dataframe
     val errDF:Err404 = Err404(day,request,errCod)
     return errDF
   }
@@ -35,13 +35,13 @@ object Teste {
   def parseLines(line: String): AllLines={
     val fields = line.split(" ")
     
-    //Captura o host
+    //retorna o host
     val host = fields(0)
     
-    //Captura os bytes
+    //retorna os bytes
     val returnBytes = fields.last
     
-    //retorna Dataframe com host e bytes
+    //retorna Dataframe
     val dfOK:AllLines = AllLines(host,returnBytes)
     return dfOK
   }
@@ -49,13 +49,8 @@ object Teste {
   
   
   def main(args: Array[String]){
-   //não mostra mais as informações de erro no console
    Logger.getLogger("org").setLevel(Level.ERROR)
    
-   //criação do SparkSession
-   //acrescentou-se .config("spark.sql.warehouse.dir","file:///C:/temp")
-   //devido a um erro na versão 2.0 do spark
-   //é necessário colocar um diretório explícito para dados temporários no SparkSql
    val spark = SparkSession
       .builder
       .appName("SparkSQL")
@@ -67,16 +62,20 @@ object Teste {
     
     //Extract
     val aug = spark.sparkContext.textFile("../access_log_Aug95")
-    val parsedLines = aug.map(parseLines)
-    val parsedErrLines = aug.filter(x => x.contains(" 404 ")).map(er404)
+    val jul = spark.sparkContext.textFile("../access_log_Jul95")
+    val all = aug.union(jul)
+    
+    val parsedLines = all.map(parseLines)
+    val parsedErrLines = all.filter(x => x.contains(" 404 ")).map(er404)
+    
     
     //Data
     val AllOKLines = parsedLines.toDS().cache()
     val ErrLines = parsedErrLines.toDS().cache()
     
-    //Tables
-    AllOKLines.createOrReplaceTempView("parsedLines")
-    ErrLines.createOrReplaceTempView("parsedErrLines")
+    //Tables(para fazer de outra forma com spark.sql no exercício 1)
+    //AllOKLines.createOrReplaceTempView("parsedLines")
+    //ErrLines.createOrReplaceTempView("parsedErrLines")
     
     //Transform
     //exercise 1
