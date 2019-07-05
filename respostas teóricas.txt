@@ -1,0 +1,26 @@
+Qual o objetivo do comando cache em Spark?
+armazenar o RDD na memória
+
+O mesmo código implementado em Spark é normalmente mais rápido que a implementação equivalente em
+MapReduce. Por quê?
+Porque o Spark apresenta uma complexidade menor ao tratar coleções de dados em memória e em componentes de combinação de informação
+sendo, dessa forma, mais rápido que o map reduce
+
+Qual é a função do SparkContext​?
+Iniciar serviços internos e estabelecer conexão com o ambiente de execução do Spark
+
+Explique com suas palavras o que é Resilient Distributed Datasets (RDD).
+RDD é objeto utilizado no Spark durante a programação, podendo assim manipular os dados
+
+GroupByKey é menos eficiente que reduceByKey em grandes dataset. Por quê?
+Porque em um groupByKey() os dados são cruzados aleatoriamente de acordo com a chave
+em outro rdd. Durante essa tranferência, muitos dados desnecessários são transferidos 
+pela rede. Já o reduceByKey, combina os mesmos pares do rdd antes de emparalhar os
+dados, sendo assim mais rápido que o groupByKey em dataset maiores.
+
+Explicação do código em Scala:
+Primeiramente é atribuído a uma variavel todos os dados de um arquivo localizado no hdfs.
+Depois é feito, através de um flatMap, split por barro de espaço e em seguida um map: para
+cada linha no dataframe é retornado uma tupla com chave e um valor fixo de 1. Após isso
+é aplicado um reduceByKey, fazendo uma soma das ocorrência das mesmas palavras.
+Por fim, o conteúdo do resultado disso é transformado em um arquivo de texto e salvo no hdfs
